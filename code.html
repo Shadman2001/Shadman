@@ -1,0 +1,281 @@
+'use client';
+
+import React, { useState } from 'react';
+import { Calendar, User, Clock, CreditCard, XCircle, CheckCircle, Hotel } from 'lucide-react';
+
+interface Booking {
+  id: string;
+  bookingCode: string;
+  roomName: { en: string; bn: string };
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  totalAmount: number;
+  status: 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'COMPLETED';
+}
+
+const INITIAL_BOOKINGS: Booking[] = [
+  {
+    id: 'b1',
+    bookingCode: 'IUBAT-2026-001042',
+    roomName: { en: 'Deluxe King Room', bn: 'ডেলুক্স কিং রুম' },
+    checkIn: '2026-09-10',
+    checkOut: '2026-09-13',
+    guests: 2,
+    totalAmount: 19500,
+    status: 'CONFIRMED',
+  },
+  {
+    id: 'b2',
+    bookingCode: 'IUBAT-2026-000811',
+    roomName: { en: 'Royal Family Suite', bn: 'রয়েল ফ্যামিলি স্যুট' },
+    checkIn: '2026-05-01',
+    checkOut: '2026-05-03',
+    guests: 4,
+    totalAmount: 25000,
+    status: 'COMPLETED',
+  },
+];
+
+export default function GuestDashboard({ params }: { params: { lang: 'en' | 'bn' } }) {
+  const lang = params.lang === 'bn' ? 'bn' : 'en';
+  const [bookings, setBookings] = useState<Booking[]>(INITIAL_BOOKINGS);
+
+  const cancelBooking = (id: string) => {
+    if (confirm(lang === 'bn' ? 'আপনি কি নিশ্চিত যে বুকিংটি বাতিল করতে চান?' : 'Are you sure you want to cancel this booking?')) {
+      setBookings((prev) =>
+        prev.map((b) => (b.id === id ? { ...b, status: 'CANCELLED' } : b))
+      );
+    }
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 bg-amber-600/20 border border-amber-500/40 rounded-full flex items-center justify-center text-amber-500">
+            <User className="w-8 h-8" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-slate-100">Tanvir Ahmed</h1>
+            <p className="text-xs text-slate-400">tanvir@example.com | +880 1712-345678</p>
+          </div>
+        </div>
+        <div className="bg-slate-950 px-4 py-2 rounded-lg border border-slate-800 text-xs text-amber-400">
+          {lang === 'bn' ? 'বুকিং সংখ্যা: ' : 'Total Bookings: '} {bookings.length}
+        </div>
+      </div>
+
+      <h2 className="text-lg font-bold text-slate-100 mb-6 flex items-center gap-2">
+        <Hotel className="w-5 h-5 text-amber-500" />
+        <span>{lang === 'bn' ? 'আমার বুকিং ইতিহাস' : 'My Reservation History'}</span>
+      </h2>
+
+      <div className="space-y-4">
+        {bookings.map((b) => (
+          <div
+            key={b.id}
+            className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:border-slate-700 transition"
+          >
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-mono bg-slate-950 text-amber-400 px-2.5 py-1 rounded border border-slate-800">
+                  {b.bookingCode}
+                </span>
+                <span
+                  className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${
+                    b.status === 'CONFIRMED'
+                      ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                      : b.status === 'CANCELLED'
+                      ? 'bg-red-950 text-red-400 border border-red-800'
+                      : 'bg-slate-800 text-slate-300'
+                  }`}
+                >
+                  {b.status}
+                </span>
+              </div>
+              <h3 className="font-bold text-slate-100 text-base">{b.roomName[lang]}</h3>
+              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400">
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5 text-amber-500" /> {b.checkIn} → {b.checkOut}
+                </span>
+                <span className="flex items-center gap-1">
+                  <User className="w-3.5 h-3.5 text-amber-500" /> {b.guests} {lang === 'bn' ? 'জন' : 'Guests'}
+                </span>
+                <span className="flex items-center gap-1">
+                  <CreditCard className="w-3.5 h-3.5 text-amber-500" /> ৳{b.totalAmount} BDT
+                </span>
+              </div>
+            </div>
+
+            {b.status === 'CONFIRMED' && (
+              <button
+                onClick={() => cancelBooking(b.id)}
+                className="bg-red-950/60 hover:bg-red-900 text-red-400 border border-red-800/60 text-xs px-4 py-2 rounded-lg transition flex items-center gap-1.5"
+              >
+                <XCircle className="w-4 h-4" />
+                <span>{lang === 'bn' ? 'বুকিং বাতিল করুন' : 'Cancel Booking'}</span>
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+'use client';
+
+import React, { useState } from 'react';
+import { Building, BookOpen, Users, DollarSign, Plus, CheckCircle, XCircle } from 'lucide-react';
+
+export default function AdminDashboard({ params }: { params: { lang: 'en' | 'bn' } }) {
+  const lang = params.lang === 'bn' ? 'bn' : 'en';
+
+  const [stats] = useState({
+    totalBookings: 28,
+    todayCheckIns: 4,
+    availableRooms: 12,
+    totalRevenue: 245000,
+  });
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-10">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-100">
+            {lang === 'bn' ? 'অ্যাডমিন ড্যাশবোর্ড' : 'Admin Management Dashboard'}
+          </h1>
+          <p className="text-xs text-slate-400 mt-1">IUBAT Hotel & Resort Control Center</p>
+        </div>
+        <button className="bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg flex items-center gap-2 transition">
+          <Plus className="w-4 h-4" />
+          <span>{lang === 'bn' ? 'নতুন রুম যোগ করুন' : 'Add New Room'}</span>
+        </button>
+      </div>
+
+      {/* Overview Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+          <div className="flex items-center justify-between text-slate-400 text-xs mb-2">
+            <span>Total Bookings</span>
+            <BookOpen className="w-4 h-4 text-amber-500" />
+          </div>
+          <div className="text-2xl font-extrabold text-slate-100">{stats.totalBookings}</div>
+        </div>
+
+        <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+          <div className="flex items-center justify-between text-slate-400 text-xs mb-2">
+            <span>Today's Check-ins</span>
+            <Users className="w-4 h-4 text-amber-500" />
+          </div>
+          <div className="text-2xl font-extrabold text-slate-100">{stats.todayCheckIns}</div>
+        </div>
+
+        <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+          <div className="flex items-center justify-between text-slate-400 text-xs mb-2">
+            <span>Available Rooms</span>
+            <Building className="w-4 h-4 text-amber-500" />
+          </div>
+          <div className="text-2xl font-extrabold text-slate-100">{stats.availableRooms}</div>
+        </div>
+
+        <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+          <div className="flex items-center justify-between text-slate-400 text-xs mb-2">
+            <span>Total Revenue</span>
+            <DollarSign className="w-4 h-4 text-amber-500" />
+          </div>
+          <div className="text-2xl font-extrabold text-amber-400">৳{stats.totalRevenue.toLocaleString()} BDT</div>
+        </div>
+      </div>
+
+      {/* Booking List Table */}
+      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+        <div className="p-4 border-b border-slate-800 font-bold text-sm text-slate-200">
+          {lang === 'bn' ? 'সাম্প্রতিক বুকিং সমুহ' : 'Recent Reservations'}
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs text-slate-300">
+            <thead className="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
+              <tr>
+                <th className="p-3">Booking ID</th>
+                <th className="p-3">Guest</th>
+                <th className="p-3">Room</th>
+                <th className="p-3">Dates</th>
+                <th className="p-3">Amount</th>
+                <th className="p-3">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800">
+              <tr className="hover:bg-slate-800/50">
+                <td className="p-3 font-mono text-amber-400">IUBAT-2026-001042</td>
+                <td className="p-3">Tanvir Ahmed</td>
+                <td className="p-3">Deluxe King Room</td>
+                <td className="p-3">10 Sep - 13 Sep 2026</td>
+                <td className="p-3">৳19,500</td>
+                <td className="p-3">
+                  <span className="bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-semibold">
+                    CONFIRMED
+                  </span>
+                </td>
+              </tr>
+              <tr className="hover:bg-slate-800/50">
+                <td className="p-3 font-mono text-amber-400">IUBAT-2026-000811</td>
+                <td className="p-3">Nusrat Jahan</td>
+                <td className="p-3">Royal Family Suite</td>
+                <td className="p-3">01 May - 03 May 2026</td>
+                <td className="p-3">৳25,000</td>
+                <td className="p-3">
+                  <span className="bg-slate-800 text-slate-400 px-2 py-0.5 rounded text-[10px] font-semibold">
+                    COMPLETED
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 2, 6, 23;
+  --background-end-rgb: 2, 6, 23;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Custom Scrollbar for Chat & Tables */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #090d16;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #d97706;
+}
